@@ -9,7 +9,7 @@
 import asyncio
 
 from pyrogram import filters, enums
-from pyrogram.types import CallbackQuery, Message, ChatPrivileges
+from pyrogram.types import CallbackQuery, Message
 
 from config import BANNED_USERS, MUSIC_BOT_NAME, adminlist, lyrical
 from strings import get_command
@@ -41,7 +41,7 @@ async def reload_admin_cache(client, message: Message, _):
         authusers = await get_authuser_names(chat_id)
         adminlist[chat_id] = []
         for user in admins:
-            if user.ChatPrivileges.can_manage_video_chats:
+            if user.can_manage_voice_chats:
                 adminlist[chat_id].append(user.user.id)
         for user in authusers:
             user_id = await alpha_to_int(user)
@@ -109,7 +109,7 @@ async def close_menu(_, CallbackQuery):
 @ActualAdminCB
 async def stop_download(client, CallbackQuery: CallbackQuery, _):
     message_id = CallbackQuery.message.id
-    task = lyrical.get(message_id)
+    task = lyrical.get(id)
     if not task:
         return await CallbackQuery.answer(
             "Downloading already Completed.", show_alert=True
@@ -123,7 +123,7 @@ async def stop_download(client, CallbackQuery: CallbackQuery, _):
         try:
             task.cancel()
             try:
-                lyrical.pop(message_id)
+                lyrical.pop(id)
             except:
                 pass
             await CallbackQuery.answer(
